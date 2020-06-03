@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8 />
+<title>ASEAN Covid-19</title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+<!-- Mapbox GL JS -->
+<script src='https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.css' rel='stylesheet' />
+
+<style>
+	body { margin:0; padding:0; }
+	#map { position:absolute; top:0; bottom:0; width:100%; }
+
+	h3 {
+		font-size: 1em;
+	}
+
+	p {
+		font-size: 0.85em;
+		margin: 10px;
+		text-align: left;
+	}
+
+	.map-overlay{
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		margin: 0 0 10px;
+		padding: 10px;
+		padding-top: 1px;
+		right: 10px;
+		font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+		overflow: auto;
+		border-radius: 3px;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+		background: #fff;
+		z-index: 1;
+	}
+
+	#features{
+		top: 30px;
+		height: 180px;
+	}
+
+	#legend {
+		bottom: 30px;
+		width: 110px;
+		height:270px;
+	}
+	
+	.legend-key {
+		display: inline-block;
+		border-radius: 20%;
+		width: 10px;
+		height: 10px;
+		margin-right: 5px;
+	}
+	
+	.image {
+		position: absolute;
+		bottom: 211px;
+		left: 5px;
+	}
+
+</style>
+</head>
+<body>
+<style>
+.mapboxgl-popup{
+	max-width: 400px;
+	font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+	}
+</style>
+
+<div id="map"></div>
+<div class="map-overlay" id="features"><h4>Covid-19 cases for ASEAN Contries<br>Updated on 29 May 2020</h4>
+	<div id="pd"><p>Hover over a country!</p></div>
+</div>
+<div class="map-overlay" id="legend">
+<h4><b>Legend</b></h4>
+	<img src = "https://cdn4.iconfinder.com/data/icons/medical-red-1/512/map_marker-512.png" alt = "Hospital Icon" width = "15" height = "15" class = "image"> <p style = "font:11px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif, text-align: center"> Hospitals that treat covid-19 patients</p>
+</div>
+
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoibmFmaXNhaGphbWFsIiwiYSI6ImNrYTBpenhxZTBvZ3EzbnFpYTl1dHVvMWUifQ.JynXZF5JfJZU-dIFYwmBJA';
+
+var map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/nafisahjamal/ckawlhfmsb4u41iqvdnojaakj',
+  center: [108.396936,4.483214],
+  zoom: 5
+});
+
+map.on('load', function(){
+	var layers = ['0-100','101-200','201-1000','1001-5000','5001-10,000','10,001-15,000','15,001-20,000','20,001-35,000'];
+	
+	var colours = ['#88fc8f','#fcf269','#f5f22e','#f9c84e','#fa7e1e','#f64f13','#fa2205','#ed0202'];
+	
+	for (i = 0; i < layers.length; i++) {
+	  var layer = layers[i];
+	  var colour = colours[i];
+	  var item = document.createElement('div');
+	  var key = document.createElement('span');
+	  key.className = 'legend-key';
+	  key.style.backgroundColor = colour;
+
+	  var value = document.createElement('span');
+	  value.innerHTML = layer;
+	  item.appendChild(key);
+	  item.appendChild(value);
+	  legend.appendChild(item);
+	}
+});
+
+map.on('mousemove', function(e) {
+  var covid = map.queryRenderedFeatures(e.point, {
+    layers: ['aseancovid']
+  });
+
+  if (covid.length > 0) {
+    document.getElementById('pd').innerHTML = '<h3><strong>' + covid[0].properties.admin + '</strong></h3><p><strong><em>' + covid[0].properties.density + '</strong> reported positive cases<strong><br/>'
+	+ covid[0].properties.death + '</strong> reported death(s) cases<br/><strong>' + covid[0].properties.recover + '</strong> reported recover(s) cases</em></p>'
+  } else {
+    document.getElementById('pd').innerHTML = '<p>Hover over a country!</p>';
+  }
+});
+
+map.on('load', function() {
+	map.loadImage('https://cdn4.iconfinder.com/data/icons/medical-red-1/512/map_marker-512.png',
+		function(error, image) {
+				if (error) throw error;
+					map.addImage('hospital', image);
+					map.addSource('points', {
+						'type': 'geojson',
+						'data': {
+						'type': 'FeatureCollection',
+						'features': [
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Elizabeth Queen</p>'
+									},
+									'geometry': {
+									'type': 'Point',
+									'coordinates': [116.0728472, 5.9527232]
+									}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Wanita dan Kanak-kanak Sabah</p>',
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [116.1194999, 6.0138038]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Tawau</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [117.8806828, 4.249723]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Lahad Datu</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [118.3049188, 5.0266886]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Dutchess of Kent Sandakan</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [118.1034598, 5.8585407]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Keningau</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [116.1819528, 5.3701277]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Umum Sarawak</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [110.3396085, 1.5436269]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Miri</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [113.9904069, 4.3743922]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Bintulu</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [113.0922753, 3.2296957]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Sibu</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [111.8831342, 2.296471]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Labuan</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [115.221263, 5.3111449]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Sultanah Bahiyah</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [100.3975704, 6.1505615]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Maliha</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [99.7896867, 6.3247687]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Tuanku Fauziah</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [100.1825904, 6.4410638]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Pulau Pinang</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [100.3022943, 5.4166654]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Raja Permaisuri Bainun</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [101.0813865, 4.6041267]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Slim River</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [101.3953928, 3.8371458]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Teluk Intan</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [101.0122564, 4.0203691]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Sri Manjung</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [100.653502, 4.1858091]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Taiping</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [100.7277018, 4.8499422]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Sungai Buloh</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [101.5743263, 3.219573]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Kuala Lumpur</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [101.7042132, 3.1662974]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Pusat Perubatan Universiti Malaya</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [101.6440774, 3.1137086]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Canselor Tuanku Mukhriz</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [101.716647, 3.099267]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Rembau</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [102.0637828, 2.5993513]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Tuanku Jaafar Seremban</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [101.9345069, 2.7073834]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Melaka</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [102.2527826, 2.2189908]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Sultanah Aminah</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [103.7359252, 1.459586]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Permai</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [103.6968401, 1.523149]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Enche Besar Hajjah Kalsom</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [103.3392074, 2.0067138]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Tengku Ampuan Afzan</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [103.3175298, 3.8003209]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Haji Ahmad Shah</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [102.4432058, 3.4543475]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Kuala Lipis</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [102.0468587, 4.1826046]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Sultanah Nur Zahirah</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [103.140218, 5.3258458]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Hulu Terengganu</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [103.0360199, 5.0732162]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Raja Permaisuri Zainab 2</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [102.2369549, 6.1252372]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Sultan Ismail Petra</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [102.2158155, 5.4973695]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Tumpat</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [102.1485493, 6.1897386]
+								}
+							},
+							{
+								'type': 'Feature',
+								'properties': {
+									'description': '<p>Hospital Tanah Merah</p>'
+									},
+								'geometry': {
+									'type': 'Point',
+									'coordinates': [102.1435685, 5.809991]
+								}
+							}
+						]}
+					});
+ 
+			// Add a layer showing the points.
+			map.addLayer({
+				'id': 'points',
+				'type': 'symbol',
+				'source': 'points',
+				'layout': {
+					'icon-image': 'hospital',
+					'icon-size': 0.04,
+					'icon-anchor': 'bottom'
+				}
+			});
+ 
+			// Create a popup, but don't add it to the map yet.
+			var popup = new mapboxgl.Popup({
+				closeButton: false,
+				closeOnClick: false
+			});
+ 
+			map.on('mouseenter', 'points', function(e) {
+				// Change the cursor style as a UI indicator.
+				map.getCanvas().style.cursor = 'pointer';
+ 
+				var coordinates = e.features[0].geometry.coordinates.slice();
+				var description = e.features[0].properties.description;
+ 
+				// Ensure that if the map is zoomed out such that multiple copies of the feature are visible, the popup appears over the copy being pointed to.
+				while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+				coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+				}
+ 
+				// Populate the popup and set its coordinates
+				popup
+					.setLngLat(coordinates)
+					.setHTML(description)
+					.addTo(map);
+			});
+ 
+			map.on('mouseleave', 'points', function() {
+				map.getCanvas().style.cursor = '';
+				popup.remove();
+			});
+		}
+	);
+});
+
+</script>
+
+</body>
+</html>
+
